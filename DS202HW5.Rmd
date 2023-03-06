@@ -1,0 +1,93 @@
+---
+title: "DS202HW5"
+author: "Fangqi Li"
+date: "2023-03-05"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+*No link to the github repo because no group work was involved besides exchange questions in class discussion for this homwwork.
+
+Q1.Answer each of the following questions using R code to get an answer. When asked for a plot, use the ggplot2 package.
+
+1).What is the overall number of chocolate bars rated?
+
+1852. It can be shown in the summary as the length of data.
+
+```{r}
+choco <- read.csv("https://ds202-at-isu.github.io/labs/data/choco.csv")
+summary(choco)
+```
+
+2).How does the number of ratings depend on the year? Draw a bar chart of the number of reports.
+
+```{r}
+library(ggplot2)
+ggplot(choco, aes(x = Review.Date)) + 
+  geom_bar()
+```
+
+Q2.For each of the questions below provide at least one graphic as a basis for your answer.
+
+1).How are ratings distributed? Draw a histogram of ratings and describe it. Don't forget to mention outliers, if there are any.
+
+A histogram of ratings is as shown below. The majority of ratings are between 2.5 and 4. Score 1 and 5 are outliers, and this can be observed easily with the box plot below histogram. All 1, 1.5, 1.75, 2 and 5 are outliers in the box plot.
+
+```{r}
+ggplot(choco, aes(x = Rating)) + 
+  geom_bar()
+ggplot(data = choco, aes(x = Rating)) +
+  geom_boxplot()
+```
+
+2).Do ratings depend on the cocoa percentage of a chocolate bar?
+
+Yes. The relationship is not very obvious to see, but with geom_smooth we can find that high rating chocolates tend to have lower cocoa percentage.
+
+```{r}
+ggplot(choco, aes(x = Rating, y = Cocoa.Pct)) + 
+  geom_jitter() +
+  geom_smooth(method = "lm")
+
+```
+
+3).How do ratings compare across different company locations? Focus on the three locations with the most ratings:
+
+From the box plots below, we can see all three locations have the same median score of 3, but USA had a wider lower quartile while Canada has a wider upper quartile. So the overall rating is USA \< France \< Canada.
+
+```{r}
+top3location <- dplyr::filter(choco, Company.Location %in% c("U.S.A.", "France", "Canada"))
+
+ggplot(data = top3location, aes(x = Company.Location, y = Rating)) +
+  geom_boxplot() +
+  coord_flip()
+```
+
+Q3.1) I'm curious what type of bean is mostly recorded and if it is affected by the rating.
+
+```{r}
+choco1 = choco
+ggplot(choco1, aes(x = reorder(Bean.Type, -table(Bean.Type)[Bean.Type]), fill=factor(Rating))) + 
+  geom_bar() +
+  coord_flip() +
+  xlab("Bean Type")
+```
+
+From the graph I can see the most recorded bean type is Trinitario, followed by Criollo and Forastero. It is not super clear to see which type of bean can produce chocolates with higher rating, but Trinitario and Criollo surely has better higher-rating chocolates ratio than those with unrecorded bean type. From all the info above, I guess there could be some advantage using Trinitario to make chocolates.
+
+Q3.2) (Because I did not work with a group, I decided to ask another question myself.) My favorite chocolates are from Japan and I have heard that Switzerland has the best chocolates. So I wonder how Japan and Switzerland chocolate rating are compared with the top three country in question 2.
+```{r}
+locationCompare <- dplyr::filter(choco, Company.Location %in% c("U.S.A.", "France", "Canada", "Japan", "Switzerland"))
+
+ggplot(data = locationCompare, aes(x = Company.Location, y = Rating)) +
+  geom_boxplot() +
+  coord_flip()
+```
+
+The rumor "Switzerland has the best chocolates" can somehow be seen in the graph for its high rating similar to Canada. But surprisingly the difference was not significant. Japanese chocolate has much lower rating than I expected, however after going through the company name I did not even find my favorite brand. So I assume the data has some sorts of limitation.
+
+Paragraph on workflow
+
+The workflow of using ggplot to analyze data typically involves specifying the data source, selecting the variables to plot, and defining the aesthetic mappings that determine how these variables are represented visually. Additional layers can then be added to the plot to display additional information, such as labels, titles, and annotations. This workflow enables data analysts to quickly and easily generate a variety of high-quality visualizations that can help identify patterns and relationships in the data.
